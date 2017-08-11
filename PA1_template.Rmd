@@ -1,25 +1,170 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+
+title: "Activity Monitoring"
+output: html_document
+========================================================================================================================================
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Programming Assignment - Personal activity monitoring
+
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
 
 
-## Loading and preprocessing the data
+The variables in the dataset "activity.csv" - https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip include:
+
+- steps: Number of steps taking in a 5-minute interval (missing values are coded as NA)
+- date: The date on which the measurement was taken in YYYY-MM-DD format
+- interval: Identifier for the 5-minute interval in which measurement was taken
+
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+Commit containing full submission
+
+1.Code for reading in the dataset and/or processing the data
+2.Histogram of the total number of steps taken each day
+3.Mean and median number of steps taken each day
+4.Time series plot of the average number of steps taken
+5.The 5-minute interval that, on average, contains the maximum number of steps
+6.Code to describe and show a strategy for imputing missing data
+7.Histogram of the total number of steps taken each day after missing values are imputed
+8.Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+9.All of the R code needed to reproduce the results (numbers, plots, etc.) in the report
+
+
+This assignment will be described in multiple parts. You will need to write a report that answers the questions detailed below. Ultimately, you will need to complete the entire assignment in a single R markdown document that can be processed by knitr and be transformed into an HTML file.
+
+## Loading and preproccessing the data
+```{r Reading activity csv file}
+raw_activity <- read.csv("C:/Users/tiago/Desktop/Coursera - Data Science/ProgrammingAssignment6/activity.csv", sep = ",", header = TRUE)
+head(raw_activity)
+
+```
+
+```{r histogram total nr of steps/day}
+# Histogram of the total number of steps taken each day.
+
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+
+tot_steps <- aggregate(raw_activity$steps, by=list(raw_activity$date), FUN=sum, na.rm=TRUE)
+names(tot_steps) <- c("date", "total")
+hist(tot_steps$total, 
+     breaks=seq(from=0, to=25000, by=2500),
+     col="blue", 
+     xlab="Total number of steps", 
+     ylim=c(0, 30), 
+     main="Histogram of the total number of steps taken each day")
+
+```
+
+```{r Mean and Median number of steps/day}
+
+# Mean and median number of steps taken each day.
+
+mean(tot_steps$total)
+median(tot_steps$total)
+
+```
+
+```{r Plot a time series chart for the avg. number of steps}
+
+# Time series plot of the average number of steps taken.
+
+avg_steps <- aggregate(raw_activity$steps, by = list(raw_activity$interval), FUN = mean, na.rm =TRUE)
+
+
+names(avg_steps) <- c("5_min_interval","avg_steps_day")
+
+ggplot(avg_steps, aes(x= avg_steps$`5_min_interval`, y= avg_steps$avg_steps_day)) + geom_line(color= "blue") + xlab("5 Minutes Interval") + ylab("avg. steps per day") + ggtitle("Time-series of the average number of steps per intervals")
+
+```
+```{r The 5-minute interval that, on average, contains the maximum number of steps}
+
+# Which 5-minute interval that, on average, contains the maximum number of steps
+
+filter(avg_steps, avg_steps_day == max(avg_steps$avg_steps_day))
+
+
+```
+
+```{r Missing values}
+
+# Code to describe and show a strategy for imputing missing data
+
+missing_values<-sum(is.na(raw_activity))
+missing_values
+
+```
+
+```{r Histogram of the total number of steps taken each day after missing values are imputed}
+
+# Build a histogram of the total number of steps taken each day withe the strategy of replacing the mean for the 5 minutes interval where there are missing values.
+
+imputed_activity <- raw_activity
+for (i in 1:nrow(imputed_activity)) 
+        {
+        if (is.na(imputed_activity$steps[i])) {
+                interval_value <- imputed_activity$interval[i]
+                steps_value <- avg_steps[avg_steps$`5_min_interval` == interval_value,]
+                imputed_activity$steps[i] <- steps_value$avg_steps_day
+                }
+}
+
+## Is there any NA´s in the new dataset called imputed_activity?
+sum(is.na(imputed_activity$steps))
+
+imputed_steps_day <- aggregate(steps ~ date, imputed_activity, sum)
+head(imputed_steps_day)
+
+hist(imputed_steps_day$steps, main="Histogram of total number of steps per day (imputed)", 
+     xlab="Total number of steps in a day")
+
+```
+
+```{r Compare avg number of steps taken every 5 minutes interval across weekdays and weekends}
+
+## Change weekdays/weekend type to English
+Sys.setlocale("LC_TIME","English")
+imputed_activity["day_type"] <- weekdays(as.Date(imputed_activity$date))
+imputed_activity$day_type[imputed_activity$day_type  %in% c('Saturday','Sunday') ] <- "weekend"
+imputed_activity$day_type[imputed_activity$day_type != "weekend"] <- "weekday"
+
+
+imputed_activity$day_type<- as.factor(as.character(imputed_activity$day_type))
+str(imputed_activity)
+
+
+```
+
+
+```{r Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends }
+
+# calculate average steps by interval across all days
+imputed_steps_by_interval <- aggregate(steps ~ interval + day_type, imputed_activity, mean)
+
+# creat a plot
+qplot(interval, 
+      steps, 
+      data = imputed_steps_by_interval, 
+      type = 'l', 
+      geom=c("line"),
+      xlab = "Interval", 
+      ylab = "Number of steps", 
+      main = "") +
+  facet_wrap(~ day_type, ncol = 1)
+
+```
 
 
 
-## What is mean total number of steps taken per day?
 
 
 
-## What is the average daily activity pattern?
 
 
 
-## Imputing missing values
 
-
-
-## Are there differences in activity patterns between weekdays and weekends?
