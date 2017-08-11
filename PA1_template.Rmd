@@ -1,6 +1,5 @@
 
-title: "Activity Monitoring"
-output: html_document
+"Activity Monitoring"
 ========================================================================================================================================
 
 ```{r setup, include=FALSE}
@@ -114,7 +113,7 @@ for (i in 1:nrow(imputed_activity))
                 }
 }
 
-## Is there any NA´s in the new dataset called imputed_activity?
+## Is there any NAÂ´s in the new dataset called imputed_activity?
 sum(is.na(imputed_activity$steps))
 
 imputed_steps_day <- aggregate(steps ~ date, imputed_activity, sum)
