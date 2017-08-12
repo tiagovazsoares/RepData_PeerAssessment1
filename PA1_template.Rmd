@@ -59,6 +59,7 @@ hist(tot_steps$total,
      main="Histogram of the total number of steps taken each day")
 
 ```
+![histogram chunk Plot1](Plot1.png) 
 
 ```{r Mean and Median number of steps/day}
 
