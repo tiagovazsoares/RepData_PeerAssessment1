@@ -82,6 +82,9 @@ names(avg_steps) <- c("5_min_interval","avg_steps_day")
 ggplot(avg_steps, aes(x= avg_steps$`5_min_interval`, y= avg_steps$avg_steps_day)) + geom_line(color= "blue") + xlab("5 Minutes Interval") + ylab("avg. steps per day") + ggtitle("Time-series of the average number of steps per intervals")
 
 ```
+![histogram chunk Plot2](Plot2.png) 
+
+
 ```{r The 5-minute interval that, on average, contains the maximum number of steps}
 
 # Which 5-minute interval that, on average, contains the maximum number of steps
@@ -125,6 +128,8 @@ hist(imputed_steps_day$steps, main="Histogram of total number of steps per day (
 
 ```
 
+![histogram chunk Plot3](Plot3.png) 
+
 ```{r Compare avg number of steps taken every 5 minutes interval across weekdays and weekends}
 
 ## Change weekdays/weekend type to English
@@ -158,7 +163,7 @@ qplot(interval,
   facet_wrap(~ day_type, ncol = 1)
 
 ```
-
+![histogram chunk Plot4](Plot4.png) 
 
 
 
